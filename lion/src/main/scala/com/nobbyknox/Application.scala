@@ -1,9 +1,12 @@
 package com.nobbyknox
 
-object Application extends App {
-  println("Hello World!")
+import com.nobbyknox.rest.Controller
 
-  val mainLoopSleepTime = 2000
+object Application extends App {
+
+  Controller.start
+
+  val mainLoopSleepTime = 10000
 
   mainLoop()
 
@@ -13,7 +16,6 @@ object Application extends App {
       Watcher.watchCdi()
       Watcher.watchCamt53()
 
-      println("Resting...")
       Thread.sleep(mainLoopSleepTime)
     }
   }
