@@ -10,16 +10,24 @@ object Application extends App {
 
   println("Main thread name: " + Thread.currentThread().getName)
 
+  SqlDataProvider.start()
   Controller.start()
 
   val mainLoopSleepTime = 10000
 
   // Run the watch loop in its own thread
-  val watchFuture = Future {
-    watchLoop()
-  }
+//  val watchFuture = Future {
+//    watchLoop()
+//  }
 
-  // Clean up when when we are terminated
+//  val result = SqlDataProvider.testQuery()
+//  println(s"result: $result")
+
+  SqlDataProvider.start()
+//  SqlDataProvider.createSchema()
+  SqlDataProvider.testQuery()
+
+  // Clean up when we are terminated
   sys.addShutdownHook({
     println("Shutdown hook called")
     SqlDataProvider.terminate()

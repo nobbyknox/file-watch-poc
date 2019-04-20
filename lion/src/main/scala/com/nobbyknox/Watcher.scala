@@ -3,7 +3,7 @@ package com.nobbyknox
 object Watcher {
 
   def watchCdi(): Unit = {
-    println("Watching CDI directory...")
+    println(s"Watching CDI directory in thread ${Thread.currentThread().getName}...")
 
     Utils.getListOfFiles("src/main/resources/cdi").foreach(file => {
       println(s"name: ${file.getName}, size: ${file.length()}, modified: ${file.lastModified()}")
@@ -11,7 +11,7 @@ object Watcher {
   }
 
   def watchCamt53(): Unit = {
-    println("Watching CAMT53 directory...")
+    println(s"Watching CAMT53 directory in thread ${Thread.currentThread().getName}...")
 
     Utils.getListOfFiles("src/main/resources/camt53").foreach(file => {
       println(s"name: ${file.getName}, size: ${file.length()}, modified: ${file.lastModified()}")
