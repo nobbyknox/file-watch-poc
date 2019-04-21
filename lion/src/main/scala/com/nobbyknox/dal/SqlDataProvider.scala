@@ -7,9 +7,12 @@ package com.nobbyknox.dal
 
 import java.sql.{Connection, DriverManager}
 
+import grizzled.slf4j.Logger
 import org.h2.tools.Server
 
 object SqlDataProvider {
+
+  private val logger = Logger("SqlDataProvider")
 
   // jdbc:h2:./db/dbhmon
   // jdbc:h2:mem:watcher;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE
@@ -47,7 +50,7 @@ object SqlDataProvider {
   }
 
   def terminate(): Unit = {
-    println("SQLDataProvider cleaning up...")
+    logger.info("SQLDataProvider cleaning up...")
 //    server.stop()
   }
 
@@ -61,7 +64,7 @@ object SqlDataProvider {
 
     while (resultSet.next()) {
       result = resultSet.getInt(1)
-      println(s"id: ${resultSet.getInt(1)}, country: ${resultSet.getString(2)}, filename: ${resultSet.getString(3)}")
+      logger.debug(s"id: ${resultSet.getInt(1)}, country: ${resultSet.getString(2)}, filename: ${resultSet.getString(3)}")
     }
 
 //    if (resultSet.first()) {

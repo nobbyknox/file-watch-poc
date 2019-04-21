@@ -3,14 +3,27 @@ package com.nobbyknox
 import java.io.{FileInputStream, FileNotFoundException}
 import java.util.Properties
 
+import org.apache.log4j.{Logger => Logger4J, Level => Level4J}
 import com.nobbyknox.dal.SqlDataProvider
 import com.nobbyknox.rest.Controller
+import grizzled.slf4j.Logger
 import org.apache.commons.cli.{DefaultParser, HelpFormatter, Options}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object Application extends App {
+
+  val logger = Logger("Application")
+
+  // Suppress the chatter of others
+  Logger4J.getLogger("org").setLevel(Level4J.ERROR)
+
+  logger.trace("This is on trace level")
+  logger.debug("This is on debug level")
+  logger.info("This is on info level")
+  logger.warn("This is on warn level")
+  logger.error("This is on error level")
 
   val commandLineOptions = getCommandLineOptions
   val commandLineArguments = getUserCommandLineArguments(commandLineOptions)
@@ -28,7 +41,7 @@ object Application extends App {
       properties.load(new FileInputStream(commandLineArguments.getOptionValue("p")))
     } catch {
       case e: FileNotFoundException => {
-        println(s"The properties file ${commandLineArguments.getOptionValue("p")} does not exist")
+        logger.error(s"The properties file ${commandLineArguments.getOptionValue("p")} does not exist")
         sys.exit(1)
       }
       case e => {
@@ -39,7 +52,7 @@ object Application extends App {
   }
 
   if (commandLineArguments.hasOption("v")) {
-    println("Main thread name: " + Thread.currentThread().getName)
+    logger.debug("Main thread name: " + Thread.currentThread().getName)
   }
 
   SqlDataProvider.start()
@@ -58,15 +71,15 @@ object Application extends App {
 
   // Clean up when we are terminated
   sys.addShutdownHook({
-    println("Shutdown hook called")
+    logger.info("Shutdown hook called")
     SqlDataProvider.terminate()
-    println("Goodbye")
+    logger.info("Goodbye")
   })
 
   def watchLoop(): Unit = {
 
     if (commandLineArguments.hasOption("v")) {
-      println("Watch loop thread name: " + Thread.currentThread().getName)
+      logger.debug("Watch loop thread name: " + Thread.currentThread().getName)
     }
 
     while (true) {

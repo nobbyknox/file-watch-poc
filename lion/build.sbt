@@ -12,7 +12,9 @@ lazy val root = (project in file("."))
       scalaTest % Test,
       "com.h2database" % "h2" % "1.4.199",
       "com.sparkjava" % "spark-core" % "2.9.0",
-      "commons-cli" % "commons-cli" % "1.4"
+      "commons-cli" % "commons-cli" % "1.4",
+      "org.slf4j" % "slf4j-log4j12" % "1.7.26",
+      "org.clapper" %% "grizzled-slf4j" % "1.3.3"
     )
   )
 
