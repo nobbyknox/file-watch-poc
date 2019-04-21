@@ -4,7 +4,7 @@ A proof of concept
 
 ## Goals
 
-I want to experiment with the following:
+Experiment with:
 
 1. Monitor a set of directories for the arrival of new files
 1. Delegate the processing of new files to a new thread
@@ -20,3 +20,11 @@ I want to experiment with the following:
 * Avoid too many 3rd party dependencies
     - Write stuff and get to know Scala
 * SBT: yes
+
+## Sub-Projects
+
+As it is unclear how many projects will be required to produce this POC, it was decided to create just this one repository and create subdirectories per project. These sub-projects are listed below.
+
+| Project | Description                              |
+| :------ | :--------------------------------------- |
+| lion    | Main orchestrator and delegator of tasks |
