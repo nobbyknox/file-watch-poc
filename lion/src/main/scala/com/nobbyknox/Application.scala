@@ -19,12 +19,6 @@ object Application extends App {
   // Suppress the chatter of others
   Logger4J.getLogger("org").setLevel(Level4J.ERROR)
 
-  logger.trace("This is on trace level")
-  logger.debug("This is on debug level")
-  logger.info("This is on info level")
-  logger.warn("This is on warn level")
-  logger.error("This is on error level")
-
   val commandLineOptions = getCommandLineOptions
   val commandLineArguments = getUserCommandLineArguments(commandLineOptions)
   val properties = new Properties()
@@ -66,8 +60,7 @@ object Application extends App {
   }
 
   SqlDataProvider.start()
-//  SqlDataProvider.createSchema()
-  SqlDataProvider.testQuery()
+  SqlDataProvider.createSchema()
 
   // Clean up when we are terminated
   sys.addShutdownHook({
@@ -83,8 +76,8 @@ object Application extends App {
     }
 
     while (true) {
-      Watcher.watchCdi()
-      Watcher.watchCamt53()
+      Watcher.watchCdi(properties)
+//      Watcher.watchCamt53()
 
       Thread.sleep(mainLoopSleepTime)
     }

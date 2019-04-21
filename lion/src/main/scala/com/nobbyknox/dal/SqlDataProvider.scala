@@ -23,7 +23,13 @@ object SqlDataProvider {
   private val password = ""
 
 //  private val server = Server.createTcpServer("-tcpPort", "9123", "-tcpAllowOthers", "-trace").start()
-  private val server: Unit = Server.main("-tcp", "-tcpPort", "9123", "-tcpAllowOthers", "-trace", "-web", "-webAllowOthers", "-webPort", "8081", "-baseDir", "/Users/nobby/tmp/006/db/")
+
+  // http://h2database.com/javadoc/org/h2/tools/Server.html?highlight=server&search=server
+  private val server: Unit = Server.main(
+    "-tcp", "-tcpPort", "9123", "-tcpAllowOthers",
+    "-trace", "-web", "-webAllowOthers", "-webPort", "8081",
+    "-ifNotExists",
+    "-baseDir", "./src/main/resources/")
 
   def start(): Unit = {
     Class.forName("org.h2.Driver")
@@ -35,7 +41,6 @@ object SqlDataProvider {
     val sql =
       """
         |create schema if not exists watcher;
-        |set schema watcher;
         |
         |create table if not exists watcher.processed_files (
         |id long auto_increment primary key,
@@ -67,15 +72,29 @@ object SqlDataProvider {
       logger.debug(s"id: ${resultSet.getInt(1)}, country: ${resultSet.getString(2)}, filename: ${resultSet.getString(3)}")
     }
 
-//    if (resultSet.first()) {
-//      result = resultSet.getInt(1)
-//      println(resultSet)
-//    }
-
     stmt.close()
     conn.close()
 
     result
+  }
+
+  def insertProcessedFile(countryCode: String, filename: String): Unit = {
+    val conn = getConnection
+    val sql =
+      """
+        |insert into WATCHER.PROCESSED_FILES
+        |  (COUNTRY_CODE, FILENAME, PROCESS_DATE)
+        |values
+        |  (?, ?, CURRENT_TIMESTAMP)
+      """.stripMargin
+
+    val stmt = conn.prepareStatement(sql)
+    stmt.setString(1, countryCode)
+    stmt.setString(2, filename)
+    stmt.execute()
+
+    stmt.close()
+    conn.close()
   }
 
   def getConnection: Connection = {
