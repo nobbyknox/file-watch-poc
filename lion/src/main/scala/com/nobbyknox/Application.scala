@@ -1,5 +1,8 @@
 package com.nobbyknox
 
+import java.io.{FileInputStream, FileNotFoundException}
+import java.util.Properties
+
 import com.nobbyknox.dal.SqlDataProvider
 import com.nobbyknox.rest.Controller
 import org.apache.commons.cli.{DefaultParser, HelpFormatter, Options}
@@ -11,12 +14,28 @@ object Application extends App {
 
   val commandLineOptions = getCommandLineOptions
   val commandLineArguments = getUserCommandLineArguments(commandLineOptions)
+  val properties = new Properties()
 
   // If help requested or properties not specified, print help and exit
   if (commandLineArguments.hasOption("h") || !commandLineArguments.hasOption("p")) {
     val helper = new HelpFormatter()
     helper.printHelp("Application", commandLineOptions)
     sys.exit(0)
+  }
+
+  if (commandLineArguments.hasOption("p")) {
+    try {
+      properties.load(new FileInputStream(commandLineArguments.getOptionValue("p")))
+    } catch {
+      case e: FileNotFoundException => {
+        println(s"The properties file ${commandLineArguments.getOptionValue("p")} does not exist")
+        sys.exit(1)
+      }
+      case e => {
+        println(e.printStackTrace())
+        sys.exit(1)
+      }
+    }
   }
 
   if (commandLineArguments.hasOption("v")) {
