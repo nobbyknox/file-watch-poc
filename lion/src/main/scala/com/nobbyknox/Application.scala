@@ -2,13 +2,26 @@ package com.nobbyknox
 
 import com.nobbyknox.dal.SqlDataProvider
 import com.nobbyknox.rest.Controller
+import org.apache.commons.cli.{DefaultParser, HelpFormatter, Options}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object Application extends App {
 
-  println("Main thread name: " + Thread.currentThread().getName)
+  val commandLineOptions = getCommandLineOptions
+  val commandLineArguments = getUserCommandLineArguments(commandLineOptions)
+
+  // If help requested or properties not specified, print help and exit
+  if (commandLineArguments.hasOption("h") || !commandLineArguments.hasOption("p")) {
+    val helper = new HelpFormatter()
+    helper.printHelp("Application", commandLineOptions)
+    sys.exit(0)
+  }
+
+  if (commandLineArguments.hasOption("v")) {
+    println("Main thread name: " + Thread.currentThread().getName)
+  }
 
   SqlDataProvider.start()
   Controller.start()
@@ -16,12 +29,9 @@ object Application extends App {
   val mainLoopSleepTime = 10000
 
   // Run the watch loop in its own thread
-//  val watchFuture = Future {
-//    watchLoop()
-//  }
-
-//  val result = SqlDataProvider.testQuery()
-//  println(s"result: $result")
+  val watchFuture = Future {
+    watchLoop()
+  }
 
   SqlDataProvider.start()
 //  SqlDataProvider.createSchema()
@@ -36,7 +46,9 @@ object Application extends App {
 
   def watchLoop(): Unit = {
 
-    println("Watch loop thread name: " + Thread.currentThread().getName)
+    if (commandLineArguments.hasOption("v")) {
+      println("Watch loop thread name: " + Thread.currentThread().getName)
+    }
 
     while (true) {
       Watcher.watchCdi()
@@ -44,6 +56,21 @@ object Application extends App {
 
       Thread.sleep(mainLoopSleepTime)
     }
+  }
+
+  def getCommandLineOptions: Options = {
+    val options = new Options()
+    options.addOption("h", "help", false, "Shows the usage screen")
+    options.addOption("v", "verbose", false, "Be verbose")
+    options.addOption("t", "type", true, "Pipeline type: cdi, camt53, camt52")
+    options.addOption("f", "file", true, "File to process")
+    options.addOption("p", "properties", true, "Properties file (mandatory)")
+    options
+  }
+
+  def getUserCommandLineArguments(options: Options) = {
+    val parser = new DefaultParser()
+    parser.parse(options, args)
   }
 
 }

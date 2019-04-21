@@ -10,8 +10,9 @@ lazy val root = (project in file("."))
     name := "lion",
     libraryDependencies ++= Seq(
       scalaTest % Test,
+      "com.h2database" % "h2" % "1.4.199",
       "com.sparkjava" % "spark-core" % "2.9.0",
-      "com.h2database" % "h2" % "1.4.199"
+      "commons-cli" % "commons-cli" % "1.4"
     )
   )
 
