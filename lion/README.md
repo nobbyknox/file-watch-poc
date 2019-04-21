@@ -1,6 +1,6 @@
 # Lion
 
-blah...
+This sub-project aims to be the main application in this POC, responsible for orchestration and delegation of all work.
 
 ## Resources
 
