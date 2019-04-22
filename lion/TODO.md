@@ -6,3 +6,4 @@
 * [ ] Need to implement a simple database pool manager for H2 (or use some library)
 * [x] Rename "Controller" to "RestController" and possibly move it up one package, removing the "rest" package
 * [ ] Ensure proper startup of DB before watcher starts it work
+* [ ] Create BASH script to run application where arguments can be specified to the script
