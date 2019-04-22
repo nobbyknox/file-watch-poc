@@ -22,12 +22,16 @@ object Watcher {
     })
   }
 
-//  def watchCamt53(): Unit = {
-//    logger.debug(s"Watching CAMT53 directory in thread ${Thread.currentThread().getName}...")
-//
-//    Utils.getListOfFiles("src/main/resources/camt53").foreach(file => {
-//      logger.debug(s"name: ${file.getName}, size: ${file.length()}, modified: ${file.lastModified()}")
-//    })
-//  }
+  def watchCamt53(properties: Properties): Unit = {
+    logger.debug(s"Watching CAMT53 directory in thread ${Thread.currentThread().getName}...")
+
+    Utils.getListOfFiles(properties.getProperty("camt53.directory.landing")).foreach(file => {
+      logger.debug(s"name: ${file.getName}, size: ${file.length()}, modified: ${file.lastModified()}")
+
+      val newFile: File = new File(properties.getProperty("camt53.directory.completed") + s"/${file.getName}")
+      file.renameTo(newFile)
+      SqlDataProvider.insertProcessedFile("MZ", file.getName)
+    })
+  }
 
 }

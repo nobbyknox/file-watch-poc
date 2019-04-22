@@ -77,7 +77,7 @@ object Application extends App {
 
     while (true) {
       Watcher.watchCdi(properties)
-//      Watcher.watchCamt53()
+      Watcher.watchCamt53(properties)
 
       Thread.sleep(mainLoopSleepTime)
     }
