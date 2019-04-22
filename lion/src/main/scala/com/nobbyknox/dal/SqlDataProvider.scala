@@ -27,7 +27,7 @@ object SqlDataProvider {
   // http://h2database.com/javadoc/org/h2/tools/Server.html?highlight=server&search=server
   private val server: Unit = Server.main(
     "-tcp", "-tcpPort", "9123", "-tcpAllowOthers",
-    "-trace", "-web", "-webAllowOthers", "-webPort", "8081",
+    "-web", "-webAllowOthers", "-webPort", "8081",
     "-ifNotExists",
     "-baseDir", "./src/main/resources/")
 
