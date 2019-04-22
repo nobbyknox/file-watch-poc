@@ -22,18 +22,15 @@ object SqlDataProvider {
   private val username = "sa"
   private val password = ""
 
-//  private val server = Server.createTcpServer("-tcpPort", "9123", "-tcpAllowOthers", "-trace").start()
+  logger.trace("Loading org.h2.Driver")
+  Class.forName("org.h2.Driver")
 
-  // http://h2database.com/javadoc/org/h2/tools/Server.html?highlight=server&search=server
-  private val server: Unit = Server.main(
-    "-tcp", "-tcpPort", "9123", "-tcpAllowOthers",
-    "-web", "-webAllowOthers", "-webPort", "8081",
-    "-ifNotExists",
-    "-baseDir", "./src/main/resources/")
+  logger.trace("Creating H2 TCP server")
+  private val tcpServer = Server.createTcpServer("-tcpPort", "9123", "-tcpAllowOthers",
+    "-baseDir", "./src/main/resources/").start()
 
-  def start(): Unit = {
-    Class.forName("org.h2.Driver")
-  }
+  logger.trace("Creating H2 web server")
+  private val webServer = Server.createWebServer("-webPort", "8081", "-webAllowOthers").start()
 
   def createSchema(): Unit = {
     val conn = getConnection
@@ -56,7 +53,8 @@ object SqlDataProvider {
 
   def terminate(): Unit = {
     logger.info("SQLDataProvider cleaning up...")
-//    server.stop()
+    webServer.stop()
+    tcpServer.stop()
   }
 
   def testQuery(): Int = {
