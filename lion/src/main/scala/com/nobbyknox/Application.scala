@@ -3,10 +3,10 @@ package com.nobbyknox
 import java.io.{FileInputStream, FileNotFoundException}
 import java.util.Properties
 
-import org.apache.log4j.{Level => Level4J, Logger => Logger4J}
-import com.nobbyknox.dal.SqlDataProvider
+import com.nobbyknox.dal.DatabaseManager
 import grizzled.slf4j.Logger
 import org.apache.commons.cli.{DefaultParser, HelpFormatter, Options}
+import org.apache.log4j.{Level => Level4J, Logger => Logger4J}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -49,25 +49,25 @@ object Application extends App {
   }
 
   RestController.start(properties)
+  val databaseManager: DatabaseManager = DatabaseManager(properties)
+  databaseManager.start()
 
-  val mainLoopSleepTime = 10000
+  val mainLoopSleepTime = properties.getProperty("watcher.sleepTime").toInt
 
   // Run the watch loop in its own thread
   val watchFuture = Future {
     watchLoop()
   }
 
-  SqlDataProvider.createSchema()
-
   // Clean up when we are terminated
   sys.addShutdownHook({
     logger.info("Shutdown hook called")
-    SqlDataProvider.terminate()
+    databaseManager.stop()
     logger.info("Goodbye")
   })
 
   def watchLoop(): Unit = {
-    val watcher = Watcher(properties)
+    val watcher = Watcher(properties, databaseManager)
 
     while (true) {
       watcher.watchCdi()

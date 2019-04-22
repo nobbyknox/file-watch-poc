@@ -5,35 +5,21 @@
   */
 package com.nobbyknox.dal
 
-import java.sql.{Connection, DriverManager}
+import java.util.Properties
 
 import grizzled.slf4j.Logger
-import org.h2.tools.Server
 
 object SqlDataProvider {
+  def apply(properties: Properties, databaseManager: DatabaseManager): SqlDataProvider = {
+    new SqlDataProvider(properties, databaseManager)
+  }
+}
 
+class SqlDataProvider(properties: Properties, databaseManager: DatabaseManager) {
   private val logger = Logger("SqlDataProvider")
 
-  // jdbc:h2:./db/dbhmon
-  // jdbc:h2:mem:watcher;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE
-  // jdbc:h2:/Users/nobby/tmp/006/db/WatcherDatabase:watcher;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE
-  // jdbc:h2:tcp://localhost:9123/WatcherDatabase
-  private val connString = "jdbc:h2:tcp://localhost:9123/WatcherDatabase"
-  private val username = "sa"
-  private val password = ""
-
-  logger.trace("Loading org.h2.Driver")
-  Class.forName("org.h2.Driver")
-
-  logger.trace("Creating H2 TCP server")
-  private val tcpServer = Server.createTcpServer("-tcpPort", "9123", "-tcpAllowOthers",
-    "-baseDir", "./src/main/resources/").start()
-
-  logger.trace("Creating H2 web server")
-  private val webServer = Server.createWebServer("-webPort", "8081", "-webAllowOthers").start()
-
   def createSchema(): Unit = {
-    val conn = getConnection
+    val conn = databaseManager.getConnection
     val stmt = conn.createStatement()
     val sql =
       """
@@ -51,14 +37,8 @@ object SqlDataProvider {
     conn.close()
   }
 
-  def terminate(): Unit = {
-    logger.info("SQLDataProvider cleaning up...")
-    webServer.stop()
-    tcpServer.stop()
-  }
-
   def testQuery(): Int = {
-    val conn = getConnection
+    val conn = databaseManager.getConnection
     var result = 0
 
     val stmt = conn.createStatement()
@@ -76,8 +56,9 @@ object SqlDataProvider {
     result
   }
 
+
   def insertProcessedFile(countryCode: String, filename: String): Unit = {
-    val conn = getConnection
+    val conn = databaseManager.getConnection
     val sql =
       """
         |insert into WATCHER.PROCESSED_FILES
@@ -93,10 +74,6 @@ object SqlDataProvider {
 
     stmt.close()
     conn.close()
-  }
-
-  def getConnection: Connection = {
-    DriverManager.getConnection(connString, username, password)
   }
 
 }
