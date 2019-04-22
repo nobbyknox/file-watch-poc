@@ -3,9 +3,8 @@ package com.nobbyknox
 import java.io.{FileInputStream, FileNotFoundException}
 import java.util.Properties
 
-import org.apache.log4j.{Logger => Logger4J, Level => Level4J}
+import org.apache.log4j.{Level => Level4J, Logger => Logger4J}
 import com.nobbyknox.dal.SqlDataProvider
-import com.nobbyknox.rest.Controller
 import grizzled.slf4j.Logger
 import org.apache.commons.cli.{DefaultParser, HelpFormatter, Options}
 
@@ -49,7 +48,7 @@ object Application extends App {
     logger.debug("Main thread name: " + Thread.currentThread().getName)
   }
 
-  Controller.start()
+  RestController.start(properties)
 
   val mainLoopSleepTime = 10000
 
