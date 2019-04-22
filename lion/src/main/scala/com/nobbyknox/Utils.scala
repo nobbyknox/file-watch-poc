@@ -9,6 +9,7 @@ object Utils {
     if (d.exists && d.isDirectory) {
       d.listFiles
         .filter(_.isFile)
+        .filter(_.getName.endsWith(".dat"))
         .toList
     } else {
       List[File]()
