@@ -49,7 +49,6 @@ object Application extends App {
     logger.debug("Main thread name: " + Thread.currentThread().getName)
   }
 
-  SqlDataProvider.start()
   Controller.start()
 
   val mainLoopSleepTime = 10000
@@ -59,7 +58,6 @@ object Application extends App {
     watchLoop()
   }
 
-  SqlDataProvider.start()
   SqlDataProvider.createSchema()
 
   // Clean up when we are terminated
@@ -70,14 +68,11 @@ object Application extends App {
   })
 
   def watchLoop(): Unit = {
-
-    if (commandLineArguments.hasOption("v")) {
-      logger.debug("Watch loop thread name: " + Thread.currentThread().getName)
-    }
+    val watcher = Watcher(properties)
 
     while (true) {
-      Watcher.watchCdi(properties)
-      Watcher.watchCamt53(properties)
+      watcher.watchCdi()
+      watcher.watchCamt53()
 
       Thread.sleep(mainLoopSleepTime)
     }
@@ -86,10 +81,10 @@ object Application extends App {
   def getCommandLineOptions: Options = {
     val options = new Options()
     options.addOption("h", "help", false, "Shows the usage screen")
-    options.addOption("v", "verbose", false, "Be verbose")
     options.addOption("t", "type", true, "Pipeline type: cdi, camt53, camt52")
     options.addOption("f", "file", true, "File to process")
     options.addOption("p", "properties", true, "Properties file (mandatory)")
+    options.addOption("m", "migrate", true, "Apply database migration script, exiting when done")
     options
   }
 

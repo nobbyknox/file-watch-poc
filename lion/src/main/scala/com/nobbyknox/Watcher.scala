@@ -8,9 +8,17 @@ import grizzled.slf4j.Logger
 
 object Watcher {
 
+  def apply(properties: Properties): Watcher = {
+    new Watcher(properties)
+  }
+
+}
+
+class Watcher(properties: Properties) {
+
   private val logger = Logger("Watcher")
 
-  def watchCdi(properties: Properties): Unit = {
+  def watchCdi(): Unit = {
     logger.debug(s"Watching CDI directory in thread ${Thread.currentThread().getName}...")
 
     Utils.getListOfFiles(properties.getProperty("cdi.directory.landing")).foreach(file => {
@@ -22,7 +30,7 @@ object Watcher {
     })
   }
 
-  def watchCamt53(properties: Properties): Unit = {
+  def watchCamt53(): Unit = {
     logger.debug(s"Watching CAMT53 directory in thread ${Thread.currentThread().getName}...")
 
     Utils.getListOfFiles(properties.getProperty("camt53.directory.landing")).foreach(file => {
