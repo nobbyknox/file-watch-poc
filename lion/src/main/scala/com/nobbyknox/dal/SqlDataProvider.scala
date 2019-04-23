@@ -5,21 +5,20 @@
   */
 package com.nobbyknox.dal
 
-import java.util.Properties
-
+import com.nobbyknox.AppContext
 import grizzled.slf4j.Logger
 
 object SqlDataProvider {
-  def apply(properties: Properties, databaseManager: DatabaseManager): SqlDataProvider = {
-    new SqlDataProvider(properties, databaseManager)
+  def apply(context: AppContext): SqlDataProvider = {
+    new SqlDataProvider(context)
   }
 }
 
-class SqlDataProvider(properties: Properties, databaseManager: DatabaseManager) {
+class SqlDataProvider(context: AppContext) {
   private val logger = Logger("SqlDataProvider")
 
   def createSchema(): Unit = {
-    val conn = databaseManager.getConnection
+    val conn = context.databaseManager.getConnection
     val stmt = conn.createStatement()
     val sql =
       """
@@ -38,7 +37,7 @@ class SqlDataProvider(properties: Properties, databaseManager: DatabaseManager) 
   }
 
   def testQuery(): Int = {
-    val conn = databaseManager.getConnection
+    val conn = context.databaseManager.getConnection
     var result = 0
 
     val stmt = conn.createStatement()
@@ -58,7 +57,7 @@ class SqlDataProvider(properties: Properties, databaseManager: DatabaseManager) 
 
 
   def insertProcessedFile(countryCode: String, filename: String): Unit = {
-    val conn = databaseManager.getConnection
+    val conn = context.databaseManager.getConnection
     val sql =
       """
         |insert into WATCHER.PROCESSED_FILES

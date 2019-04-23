@@ -1,31 +1,30 @@
 package com.nobbyknox
 
 import java.io.File
-import java.util.Properties
 
-import com.nobbyknox.dal.{DatabaseManager, SqlDataProvider}
+import com.nobbyknox.dal.SqlDataProvider
 import grizzled.slf4j.Logger
 
 object Watcher {
 
-  def apply(properties: Properties, databaseManager: DatabaseManager): Watcher = {
-    new Watcher(properties, databaseManager)
+  def apply(context: AppContext): Watcher = {
+    new Watcher(context)
   }
 
 }
 
-class Watcher(properties: Properties, databaseManager: DatabaseManager) {
+class Watcher(context: AppContext) {
 
   private val logger = Logger("Watcher")
-  private val db: SqlDataProvider = SqlDataProvider(properties, databaseManager)
+  private val db: SqlDataProvider = SqlDataProvider(context)
 
   def watchCdi(): Unit = {
     logger.debug(s"Watching CDI directory in thread ${Thread.currentThread().getName}...")
 
-    Utils.getListOfFiles(properties.getProperty("cdi.directory.landing")).foreach(file => {
+    Utils.getListOfFiles(context.properties.getProperty("cdi.directory.landing")).foreach(file => {
       logger.debug(s"name: ${file.getName}, size: ${file.length()}, modified: ${file.lastModified()}")
 
-      val newFile: File = new File(properties.getProperty("cdi.directory.completed") + s"/${file.getName}")
+      val newFile: File = new File(context.properties.getProperty("cdi.directory.completed") + s"/${file.getName}")
       file.renameTo(newFile)
       db.insertProcessedFile("KE", file.getName)
     })
@@ -34,10 +33,10 @@ class Watcher(properties: Properties, databaseManager: DatabaseManager) {
   def watchCamt53(): Unit = {
     logger.debug(s"Watching CAMT53 directory in thread ${Thread.currentThread().getName}...")
 
-    Utils.getListOfFiles(properties.getProperty("camt53.directory.landing")).foreach(file => {
+    Utils.getListOfFiles(context.properties.getProperty("camt53.directory.landing")).foreach(file => {
       logger.debug(s"name: ${file.getName}, size: ${file.length()}, modified: ${file.lastModified()}")
 
-      val newFile: File = new File(properties.getProperty("camt53.directory.completed") + s"/${file.getName}")
+      val newFile: File = new File(context.properties.getProperty("camt53.directory.completed") + s"/${file.getName}")
       file.renameTo(newFile)
       db.insertProcessedFile("MZ", file.getName)
     })

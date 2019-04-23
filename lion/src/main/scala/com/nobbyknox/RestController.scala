@@ -9,10 +9,10 @@ object RestController {
 
   val logger = Logger("RestController")
 
-  def start(properties: Properties): Unit = {
+  def start(context: AppContext): Unit = {
     logger.trace("Starting REST server...")
 
-    Spark.port(properties.getProperty("rest.server.port").toInt)
+    Spark.port(context.properties.getProperty("rest.server.port").toInt)
 
     Spark.get("/hello", (request: Request, response: Response) => {
       logger.trace("Top of /hello")

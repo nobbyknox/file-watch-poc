@@ -20,7 +20,6 @@ object Application extends App {
 
   val commandLineOptions = getCommandLineOptions
   val commandLineArguments = getUserCommandLineArguments(commandLineOptions)
-  val properties = new Properties()
 
   // If help requested or properties not specified, print help and exit
   if (commandLineArguments.hasOption("h") || !commandLineArguments.hasOption("p")) {
@@ -29,9 +28,38 @@ object Application extends App {
     sys.exit(0)
   }
 
-  if (commandLineArguments.hasOption("p")) {
+  // TODO: Rewrite this using Try/Success/Failure
+  val context = initializeApp
+
+  context.databaseManager.start()
+
+  RestController.start(context)
+
+  val mainLoopSleepTime = context.properties.getProperty("watcher.sleepTime").toInt
+
+  // Run the watch loop in its own thread
+  val watchFuture = Future {
+    watchLoop()
+  }
+
+  // Clean up when we are terminated
+  sys.addShutdownHook({
+    logger.info("Shutdown hook called")
+    context.databaseManager.stop()
+    logger.info("Goodbye")
+  })
+
+  def initializeApp: AppContext = {
+    val props = getProperties
+    val dm = getDatabaseManager(props)
+    new AppContext(props, dm)
+  }
+
+  def getProperties: Properties = {
     try {
+      val properties = new Properties()
       properties.load(new FileInputStream(commandLineArguments.getOptionValue("p")))
+      properties
     } catch {
       case e: FileNotFoundException => {
         logger.error(s"The properties file ${commandLineArguments.getOptionValue("p")} does not exist")
@@ -44,30 +72,12 @@ object Application extends App {
     }
   }
 
-  if (commandLineArguments.hasOption("v")) {
-    logger.debug("Main thread name: " + Thread.currentThread().getName)
+  def getDatabaseManager(properties: Properties): DatabaseManager = {
+    DatabaseManager(properties)
   }
-
-  RestController.start(properties)
-  val databaseManager: DatabaseManager = DatabaseManager(properties)
-  databaseManager.start()
-
-  val mainLoopSleepTime = properties.getProperty("watcher.sleepTime").toInt
-
-  // Run the watch loop in its own thread
-  val watchFuture = Future {
-    watchLoop()
-  }
-
-  // Clean up when we are terminated
-  sys.addShutdownHook({
-    logger.info("Shutdown hook called")
-    databaseManager.stop()
-    logger.info("Goodbye")
-  })
 
   def watchLoop(): Unit = {
-    val watcher = Watcher(properties, databaseManager)
+    val watcher = Watcher(context)
 
     while (true) {
       watcher.watchCdi()
