@@ -9,3 +9,7 @@
 * [ ] Ensure proper startup of DB before watcher starts it work
 * [x] Create BASH script to run application where arguments can be specified to the script
 * [ ] Processors to use a queue to pick tasks (files to be processed). This will enable parallel processing of files, either through multiple consumer processors or via multiple threads.
+    - Check out:
+        - http://queues.io/
+        - https://stackoverflow.com/questions/21108728/persistent-queue-datastructure
+        - https://github.com/softwaremill/elasticmq
