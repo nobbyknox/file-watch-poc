@@ -38,6 +38,9 @@ object Application extends App {
   val mainLoopSleepTime = context.properties.getProperty("watcher.sleepTime").toInt
 
   // Run the watch loop in its own thread
+  // TODO: I don't think it is correct to use futures when you really want to run something in a
+  // thread. Read this:
+  // https://alvinalexander.com/scala/differences-java-thread-vs-scala-future
   val watchFuture = Future {
     watchLoop()
   }
