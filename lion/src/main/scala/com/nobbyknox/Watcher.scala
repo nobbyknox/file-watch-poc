@@ -17,6 +17,23 @@ class Watcher(context: AppContext) {
 
   private val logger = Logger("Watcher")
   private val db: SqlDataProvider = SqlDataProvider(context)
+  private var keepRunning = true
+  private val mainLoopSleepTime = context.properties.getProperty("watcher.sleepTime").toInt
+
+  def start(): Unit = {
+    logger.debug("Starting")
+    while (keepRunning) {
+      watchCdi()
+      watchCamt53()
+
+      Thread.sleep(mainLoopSleepTime)
+    }
+  }
+
+  def stop(): Unit = {
+    logger.debug("Received stop instruction")
+    keepRunning = false
+  }
 
   def watchCdi(): Unit = {
     logger.debug(s"Watching CDI directory in thread ${Thread.currentThread().getName}...")

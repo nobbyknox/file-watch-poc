@@ -8,9 +8,6 @@ import grizzled.slf4j.Logger
 import org.apache.commons.cli.{DefaultParser, HelpFormatter, Options}
 import org.apache.log4j.{Level => Level4J, Logger => Logger4J}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
 object Application extends App {
 
   val logger = Logger("Application")
@@ -30,18 +27,16 @@ object Application extends App {
 
   // TODO: Rewrite this using Try/Success/Failure
   val context = initializeApp
+  val watcher = Watcher(context)
 
   context.databaseManager.start()
-
   RestController.start(context)
-
-  val mainLoopSleepTime = context.properties.getProperty("watcher.sleepTime").toInt
 
   // Run the watch loop in its own thread
   // https://alvinalexander.com/scala/differences-java-thread-vs-scala-future
   val watchThread = new Thread {
     override def run(): Unit = {
-      watchLoop()
+      watcher.start()
     }
   }
 
@@ -50,6 +45,7 @@ object Application extends App {
   // Clean up when we are terminated
   sys.addShutdownHook({
     logger.info("Shutdown hook called")
+    watcher.stop()
     context.databaseManager.stop()
     logger.info("Goodbye")
   })
@@ -79,17 +75,6 @@ object Application extends App {
 
   def getDatabaseManager(properties: Properties): DatabaseManager = {
     DatabaseManager(properties)
-  }
-
-  def watchLoop(): Unit = {
-    val watcher = Watcher(context)
-
-    while (true) {
-      watcher.watchCdi()
-      watcher.watchCamt53()
-
-      Thread.sleep(mainLoopSleepTime)
-    }
   }
 
   def getCommandLineOptions: Options = {
