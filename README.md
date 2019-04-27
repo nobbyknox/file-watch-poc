@@ -1,5 +1,7 @@
 # File Watch POC
 
+> NOTICE: This project was moved to a private repository in GitLab on 2019-04-27, leaving this repository fallow.
+
 A proof of concept
 
 ## Goals
